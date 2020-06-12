@@ -55,7 +55,7 @@ app.use(express.json());
 const { v4: uuid } = require('uuid');
 
 app.get('/', (req, res) => {
-  res.send('Hello, world!');
+  res.send('Hello, World');
 });
 
 app.get('/bookmarks', (req, res, next) => {
@@ -67,20 +67,31 @@ app.get('/bookmarks', (req, res, next) => {
     .catch(next);
 });
 
-app.get('/bookmarks/:id', (req, res) => {
-  const { id } = req.params;
-  // const bookmark = bookmarks.find((c) => c.id == id);
-  const knexInstance = req.app.get('db');
-
-  // if (!bookmark) {
-  //   logger.error(`Bookmark with id ${id} not found`);
-  //   return res.status(404).send('Bookmark Not Found');
-  // }
-
-  BookmarksService.getById(knexInstance, id).then((bookmark) =>
-    res.json(bookmark)
-  );
+app.get('/bookmarks/:bookmark_id', (req, res, next) => {
+  const knexInstance = req.app.get('db')
+  BookmarksService.getById(knexInstance, req.params.bookmark_id)
+    .then(bookmark => {
+      if (!bookmark) {
+        return res.status(404).json({
+          error: { message: `Bookmark doesn't exist` }
+        })
+      }
+      res.json(bookmark)
+    })
+    .catch(next)
 });
+//remember for windows to go back and add this
+// res.json(bookmark) * remove *
+//   res.json({
+//     id: bookmark.id,
+//     title: bookmark.title,
+//     url: bookmark.url
+//     rating: bookmark.content,
+//     description: bookmark.description,
+//   })
+//       })
+//       .catch (next)
+//   });
 
 app.post('/bookmarks', (req, res) => {
   console.log(req.body);
